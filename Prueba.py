@@ -15,7 +15,7 @@ hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 #            img[i, j] = 0
 
 #print(img.shape)
-cv.imwrite('C:\Users\roman\Documents\Inteligencia Artificial\Ejercicios\imagenes'+'1.jpg', gray)
+cv.imwrite('C:/Users/roman/Documents/Inteligencia Artificial/Ejercicios/imagenes/img1.jpg', gray)
 cv.imshow('img',img)
 cv.imshow('gray',gray)
 cv.imshow('rgb',rgb)
