@@ -153,7 +153,7 @@ def guardar_datos():
     salto_hecho = 1 if salto else 0  # 1 si saltó, 0 si no saltó
     # Guardar velocidad de la bala, distancia al jugador y si saltó o no
     datos_modelo.append((velocidad_bala, distancia, salto_hecho))
-    generar_csv(datos_modelo.append((velocidad_bala, distancia, salto_hecho)))
+    generar_csv([velocidad_bala, distancia, salto_hecho])
 
 def generar_csv(datos):
     with open('pygameccsv.csv','w',newline='') as file:
@@ -176,7 +176,7 @@ def mostrar_menu():
     global menu_activo, modo_auto
     pantalla.fill(NEGRO)
     texto = fuente.render("Presiona 'A' para Auto, 'M' para Manual, 'G' para Graficar, o 'Q' para Salir", True, BLANCO)
-    pantalla.blit(texto, (w // 4, h // 2))
+    pantalla.blit(texto, (w // 8, h // 2))
     pygame.display.flip()
 
     while menu_activo:
