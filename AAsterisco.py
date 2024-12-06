@@ -1,9 +1,10 @@
 import pygame
 
 # Configuraciones iniciales
-ANCHO_VENTANA = 800
+pygame.init()
+ANCHO_VENTANA = 650
 VENTANA = pygame.display.set_mode((ANCHO_VENTANA, ANCHO_VENTANA))
-pygame.display.set_caption("Visualización de Nodos")
+pygame.display.set_caption("Algoritmo A*")
 
 # Colores (RGB)
 BLANCO = (255, 255, 255)
@@ -93,9 +94,18 @@ def main(ventana, ancho):
 
     corriendo = True
 
+def Heuristica(p1, p2): # Funcion Heuristica
+    x1, y1 = p1
+    x2, y2 = p2
+    return abs(x1 - x2) + abs(y1 - y2) # La distancia entre 2 puntos
+
+
     while corriendo:
         dibujar(ventana, grid, FILAS, ancho)
         for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
+                print("Algoritmo a*")
+
             if event.type == pygame.QUIT:
                 corriendo = False
 
@@ -123,6 +133,8 @@ def main(ventana, ancho):
                     inicio = None
                 elif nodo == fin:
                     fin = None
+            
+            
 
     pygame.quit()
 
