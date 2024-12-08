@@ -1,4 +1,5 @@
 import pygame
+from queue import PriorityQueue
 
 # Configuraciones iniciales
 pygame.init()
@@ -24,6 +25,7 @@ class Nodo:
         self.color = BLANCO
         self.ancho = ancho
         self.total_filas = total_filas
+        self.vecinos = []
 
     def get_pos(self):
         return self.fila, self.col
@@ -47,10 +49,82 @@ class Nodo:
         self.color = NEGRO
 
     def hacer_fin(self):
-        self.color = PURPURA
+        self.color = GRIS
+
+    def cerrado(self):
+        self.color = ROJO
+
+    def hacer_abierto(self):
+        self.col = VERDE
 
     def dibujar(self, ventana):
         pygame.draw.rect(ventana, self.color, (self.x, self.y, self.ancho, self.ancho))
+    
+    def Alrededor_vecinos(self, grid):
+        self.vecinos = []
+        if self.fila < self.total_filas - 1 and not grid[self.fila+1][self.col].es_pared(): # Abajo
+            self.vecinos.append(grid[self.fila+1][self.col])
+        if self.fila > 0 and not grid[self.fila-1][self.col].es_pared(): # Arriba
+            self.vecinos.append(grid[self.fila-1][self.col])
+        if self.col > 0 and not grid[self.fila][self.col - 1].es_pared(): # Izquierda
+            self.vecinos.append(grid[self.fila][self.col-1])
+        if self.col < self.total_filas - 1 and not grid[self.fila][self.col+1].es_pared(): # Derecha
+            self.vecinos.append(grid[self.fila][self.col+1])
+
+def Heuristica(p1, p2): # Funcion Heuristica
+    x1, y1 = p1
+    x2, y2 = p2
+    return abs(x1 - x2) + abs(y1 - y2) # La distancia entre 2 puntos
+
+def mejor_camino(camino_nodos, nodo_actual, dibujar):
+	while nodo_actual in camino_nodos:
+		nodo_actual = camino_nodos[nodo_actual]
+		nodo_actual.mejor_camino()
+		dibujar()
+
+def a_asterisco(dibujar, grid, incio, fin):
+    contador = 0
+    lista_abierta = PriorityQueue()
+    lista_abierta.put((0, contador, incio))
+    camino_nodos = {} # La lista del mejor camino
+    calculo_g = {punto: float("inf") for fila in grid for punto in fila}
+    calculo_g[incio] = 0
+    calculo_f = {punto: float("inf") for fila in grid for punto in fila}
+    calculo_f[incio] = Heuristica(incio.get_pos(), fin.get_pos())
+
+    lista_abierta_copia = {incio}
+
+    while not lista_abierta.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT():
+                pygame.quit()
+        
+        nodo_actual = lista_abierta.get()[2]
+        lista_abierta_copia.remove(nodo_actual)
+
+        if nodo_actual == fin:
+            mejor_camino(camino_nodos, fin, dibujar)
+            fin.cerrado()
+            return True
+        
+        for vecino in nodo_actual.vecinos:
+            calculo_g_tmp = calculo_g[nodo_actual]+1
+            
+            if calculo_g_tmp < calculo_g[vecino]:
+                camino_nodos[vecino] = nodo_actual
+                calculo_g[nodo_actual] = calculo_g_tmp
+                calculo_f[vecino] = calculo_g_tmp + Heuristica(vecino.get_pos(), fin.get_pos())
+                if vecino not in lista_abierta_copia:
+                    contador += 1
+                    lista_abierta.put((calculo_f[vecino], contador, vecino))
+                    lista_abierta_copia.add(vecino)
+                    vecino.hacer_abierto()
+        
+        dibujar()
+        if nodo_actual != incio:
+            nodo_actual.cerrado()
+
+    return False
 
 def crear_grid(filas, ancho):
     grid = []
@@ -86,7 +160,7 @@ def obtener_click_pos(pos, filas, ancho):
     return fila, col
 
 def main(ventana, ancho):
-    FILAS = 10
+    FILAS = 50
     grid = crear_grid(FILAS, ancho)
 
     inicio = None
@@ -94,17 +168,17 @@ def main(ventana, ancho):
 
     corriendo = True
 
-def Heuristica(p1, p2): # Funcion Heuristica
-    x1, y1 = p1
-    x2, y2 = p2
-    return abs(x1 - x2) + abs(y1 - y2) # La distancia entre 2 puntos
-
-
     while corriendo:
         dibujar(ventana, grid, FILAS, ancho)
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN and event.key == pygame.K_i:
-                print("Algoritmo a*")
+                print("algoritmo a*")
+                if inicio and fin:
+                    print("incio fin")
+                    for fila in grid:
+                        for nodo in fila:
+                            nodo.Alrededor_vecinos(grid)
+                    a_asterisco(lambda: dibujar(ventana, grid, FILAS, ancho), grid, inicio, fin)
 
             if event.type == pygame.QUIT:
                 corriendo = False
