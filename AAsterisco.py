@@ -3,7 +3,7 @@ from queue import PriorityQueue
 
 # Configuraciones iniciales
 pygame.init()
-ANCHO_VENTANA = 650
+ANCHO_VENTANA = 500
 VENTANA = pygame.display.set_mode((ANCHO_VENTANA, ANCHO_VENTANA))
 pygame.display.set_caption("Algoritmo A*")
 
@@ -16,6 +16,9 @@ ROJO = (255, 0, 0)
 NARANJA = (255, 165, 0)
 AZUL = (57, 107, 170)
 PURPURA = (128, 0, 128)
+
+# Fuente
+FUENTE = pygame.font.SysFont('arial', 32) 
 
 
 class Nodo:
@@ -45,7 +48,7 @@ class Nodo:
         self.color = BLANCO
 
     def hacer_inicio(self): #
-        self.color = NARANJA
+        self.color = GRIS
 
     def hacer_pared(self): #
         self.color = NEGRO
@@ -62,6 +65,26 @@ class Nodo:
     def camino(self):
         self.color = PURPURA
 
+    def imprimir_calculos(self, ventana, calculo_g, Heuristica, calculo_f, camino):
+        tecla = True
+        while tecla:
+            for event in pygame.event.get():
+                imprimir_g = FUENTE.render(f"Peso: {int(calculo_g)}", True, NEGRO)
+                imprimir_heuristica = FUENTE.render(f"Heurística: {int(Heuristica)}", True, NEGRO)
+                imprimir_f = FUENTE.render(f"Costo: {int(calculo_f)}", True, NEGRO)
+
+                ventana.blit(imprimir_g, (self.x + 5, self.y + 5))
+                ventana.blit(imprimir_heuristica, (self.x + 5, self.y + 20))
+                ventana.blit(imprimir_f, (self.x + 5, self.y + 35))
+
+                pygame.display.update()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_n:
+                        tecla = False
+            
+                        
+
+
     def dibujar(self, ventana):
         pygame.draw.rect(ventana, self.color, (self.x, self.y, self.ancho, self.ancho))
     
@@ -70,8 +93,20 @@ class Nodo:
         if self.fila < self.total_filas - 1 and not grid[self.fila+1][self.col].es_pared(): # Abajo
             self.vecinos.append(grid[self.fila+1][self.col])
 
+        if self.fila < self.total_filas - 1 and self.col < self.total_filas - 1 and not grid[self.fila + 1][self.col + 1].es_pared():  # Abajo-Derecha
+            self.vecinos.append(grid[self.fila + 1][self.col + 1])
+
+        if self.fila < self.total_filas - 1 and self.col > 0 and not grid[self.fila + 1][self.col - 1].es_pared():  # Abajo-Izquierda
+            self.vecinos.append(grid[self.fila + 1][self.col - 1])
+
         if self.fila > 0 and not grid[self.fila-1][self.col].es_pared(): # Arriba
             self.vecinos.append(grid[self.fila-1][self.col])
+
+        if self.fila > 0 and self.col < self.total_filas - 1 and not grid[self.fila - 1][self.col + 1].es_pared():  # Arriba-Derecha
+            self.vecinos.append(grid[self.fila - 1][self.col + 1])
+
+        if self.fila > 0 and self.col > 0 and not grid[self.fila - 1][self.col - 1].es_pared():  # Arriba-Izquierda
+            self.vecinos.append(grid[self.fila - 1][self.col - 1])
 
         if self.col > 0 and not grid[self.fila][self.col - 1].es_pared(): # Izquierda
             self.vecinos.append(grid[self.fila][self.col-1])
@@ -84,16 +119,23 @@ def Heuristica(p1, p2): # Funcion Heuristica
     x2, y2 = p2
     return abs(x1 - x2) + abs(y1 - y2) # La distancia entre 2 puntos
 
-def mejor_camino(camino_nodos, nodo_actual, dibujar):
-	while nodo_actual in camino_nodos:
-		nodo_actual = camino_nodos[nodo_actual]
-		nodo_actual.camino()
-		dibujar()
 
-def a_asterisco(dibujar, grid, incio, fin):
+def mejor_camino(camino_nodos, datos, nodo_actual, dibujar):
+    while nodo_actual in camino_nodos:
+        nodo_actual = camino_nodos[nodo_actual]
+        nodo_actual.camino()
+        print("Nodo:", nodo_actual.get_pos())
+        dibujar()
+
+    for dato in datos:
+        print(dato)
+
+
+def a_asterisco(dibujar, ventana, grid, incio, fin):
     contador = 0
     lista_abierta = PriorityQueue()
     lista_abierta.put((0, contador, incio))
+    datos = []
     camino_nodos = {} # La lista del mejor camino
     calculo_g = {nodo: float("inf") for fila in grid for nodo in fila}
     calculo_g[incio] = 0
@@ -111,7 +153,7 @@ def a_asterisco(dibujar, grid, incio, fin):
         lista_abierta_copia.remove(nodo_actual)
 
         if nodo_actual == fin:
-            mejor_camino(camino_nodos, fin, dibujar)
+            mejor_camino(camino_nodos, datos, fin, dibujar)
             fin.hacer_fin()
             return True
         
@@ -122,13 +164,22 @@ def a_asterisco(dibujar, grid, incio, fin):
                 camino_nodos[vecino] = nodo_actual
                 calculo_g[vecino] = calculo_g_tmp
                 calculo_f[vecino] = calculo_g_tmp + Heuristica(vecino.get_pos(), fin.get_pos())
+                datos.append((calculo_g_tmp, Heuristica(nodo_actual.get_pos(), fin.get_pos()), calculo_g_tmp + Heuristica(vecino.get_pos(), fin.get_pos())))
                 if vecino not in lista_abierta_copia:
                     contador += 1
                     lista_abierta.put((calculo_f[vecino], contador, vecino))
                     lista_abierta_copia.add(vecino)
-                    vecino.hacer_inicio()
+                    vecino.ponerlo_abierto()
         
+        nodo_actual.imprimir_calculos(
+            ventana, 
+            calculo_g[nodo_actual], 
+            Heuristica(nodo_actual.get_pos(), fin.get_pos()), 
+            calculo_f[nodo_actual],
+            camino_nodos
+        )
         dibujar()
+
         if nodo_actual != incio:
             nodo_actual.ponerlo_cerrado()
 
@@ -168,7 +219,7 @@ def obtener_click_pos(pos, filas, ancho):
     return fila, col
 
 def main(ventana, ancho):
-    FILAS = 50
+    FILAS = 10
     grid = crear_grid(FILAS, ancho)
 
     inicio = None
@@ -184,7 +235,7 @@ def main(ventana, ancho):
                     for fila in grid:
                         for nodo in fila:
                             nodo.Alrededor_vecinos(grid)
-                    a_asterisco(lambda: dibujar(ventana, grid, FILAS, ancho), grid, inicio, fin)
+                    a_asterisco(lambda: dibujar(ventana, grid, FILAS, ancho), ventana,  grid, inicio, fin)
 
                 if event.key == pygame.K_r:
                     inicio = None
