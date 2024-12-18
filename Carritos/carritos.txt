@@ -1,0 +1,21 @@
+Nissan Versa
+    Primera generación (2012-2019)
+    Segunda generación (2020-2024)
+
+Chevrolet Aveo
+    Aveo T250 (2010-2017)
+    Aveo NG (2018-2024)
+
+Volkswagen Jetta
+    Jetta Clásico (2010-2014)
+    Jetta A6 (2015-2018)
+    Jetta A7 (2019-2024)
+
+Nissan March
+    Primera generación (2011-2020)
+    Versión renovada (2021-2024)
+
+Toyota Corolla
+    Décima generación (2008-2013)
+    Undécima generación (2014-2018)
+    Duodécima generación (2019-2024)
