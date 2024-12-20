@@ -219,7 +219,7 @@ def obtener_click_pos(pos, filas, ancho):
     return fila, col
 
 def main(ventana, ancho):
-    FILAS = 10
+    FILAS = 9
     grid = crear_grid(FILAS, ancho)
 
     inicio = None

@@ -11,7 +11,7 @@ import requests
 import random  # Para generar delays aleatorios
 
 # ------------------------------ Configuración inicial ------------------------------
-output_dir = "imagenes_pinterest/Toyota Corolla"
+output_dir = "imagenes_pinterest/kia Rio Hatchback"
 os.makedirs(output_dir, exist_ok=True)
 
 options = webdriver.ChromeOptions()
@@ -59,12 +59,13 @@ def process_images():
             download_image(src, output_path)
 
 # ------------------------------ Programa principal ------------------------------
+#https://mx.pinterest.com/search/pins/?q=Nissan%20Versa&rs=typed
 try:
-    pinterest_url = "https://mx.pinterest.com/search/pins/?q=Toyota%20Corolla&rs=typed"
+    pinterest_url = "https://mx.pinterest.com/search/pins/?q=kia%20rio%20hatchback&rs=typed"
     driver.get(pinterest_url)
     wait_for_page_load(driver)
 
-    total_scrolls = 500  # Número de desplazamientos
+    total_scrolls = 50  # Número de desplazamientos
     for _ in range(total_scrolls):
         process_images()  # Procesa las imágenes visibles
         driver.find_element(By.TAG_NAME, "body").send_keys(Keys.PAGE_DOWN)  # Desplázate hacia abajo

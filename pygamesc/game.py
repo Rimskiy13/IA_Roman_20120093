@@ -67,7 +67,7 @@ nave = pygame.Rect(w - 100, h - 100, 64, 64)
 
 # Animación del jugador
 current_frame = 0
-frame_speed = 10
+frame_speed = 7
 frame_count = 0
 
 # Bala
@@ -211,7 +211,7 @@ def salto_red():
     except Exception as e:
         print(f"Error en la predicción: {e}")
 
-# Función: Entrenar Árbol de Decisión
+# Función: Entrenar Árbol de DecisiónB
 def fit_arbol():
     global modelo_entrenado_arbol, datos_modelo
 
